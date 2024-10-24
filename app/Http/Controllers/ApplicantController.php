@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Job;
+use App\Mail\JobApplied;
 use App\Models\Applicant;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 
 class ApplicantController extends Controller
@@ -46,8 +48,17 @@ class ApplicantController extends Controller
         $application->save();
 
         // Send email to owner (Uncomment after mailtrap compliance form is submitted)
-        // Mail::to($job->user->email)->send(new JobApplied($application, $job));
+        Mail::to($job->user->email)->send(new JobApplied($application, $job));
 
         return redirect()->back()->with('success', 'Your application has been submitted');
+    }
+
+    // @desc    Delete job applicant
+    // @route   DELETE /applicants/{applicant}
+    public function destroy($id): RedirectResponse
+    {
+        $applicant = Applicant::findOrFail($id);
+        $applicant->delete();
+        return redirect()->route('dashboard')->with('success', 'Applicant deleted successfully!');
     }
 }
